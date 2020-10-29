@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+alias doom="~/.emacs.d/bin/doom"
+
+if [ -n "$INSIDE_EMACS" ] ; then
+    alias vi="emacsclient"
+    alias vim="emacsclient"
+    alias emacs="emacsclient"
+    alias f="emacsclient"
+    alias ff="emacsclient"
+fi
+
+export WORKON_HOME=$HOME/.virtualenvs
+export PROJECT_HOME=$HOME/workspace/
+export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
+source .local/bin/virtualenvwrapper.sh
