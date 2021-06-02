@@ -24,23 +24,23 @@
 separator_block_width=15
 
 
-[mpd]
-#label=a
-command=/usr/share/i3blocks/mpdstatus
-interval=1
-#signal=
-#full_text=
-#short_text=
-#color=
-#min_width=
-#align=
-#name=
-#instance=
-#urgent=
-#separator=
-#separator_block_width=
-markup=pango
-#format=
+# [mpd]
+# #label=a
+# command=/usr/share/i3blocks/mpdstatus
+# interval=1
+# #signal=
+# #full_text=
+# #short_text=
+# #color=
+# #min_width=
+# #align=
+# #name=
+# #instance=
+# #urgent=
+# #separator=
+# #separator_block_width=
+# markup=pango
+# #format=
 
 
 
