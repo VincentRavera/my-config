@@ -10,6 +10,7 @@
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 
 set $mod Mod4
+set $alt Mod1
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -19,8 +20,10 @@ font pango: System San Francisco Display 13
 
 #ADD WALLPAPER
 #
-exec --no-startup-id feh --bg-fill /home/m0b1us/Images/Ring_in_a_planet.jpg
+exec --no-startup-id feh --bg-fill /home/vravera/Pictures/celestial-world-digital-art-space-colorful.jpg
 #exec --no-startup-id feh --bg-fill /home/m0b1us/Images/meteorites-3840x2400-stars-planet-4k-15557.jpg
+#
+exec --no-startup-id dropbox start
 
 #ADD transparency
 # exec xcompmgr -c -f -n
@@ -28,7 +31,7 @@ exec --no-startup-id feh --bg-fill /home/m0b1us/Images/Ring_in_a_planet.jpg
 exec --no-startup-id compton -f
 
 #ADD MPD start
-exec --no-startup-id mpd
+# exec --no-startup-id mpd
 
 #ADD emacs server
 #exec emacs --daemon
@@ -49,9 +52,9 @@ floating_modifier $mod
 
 # start a terminal
 #bindsym $mod+Return exec i3-sensible-terminal
-#bindsym $mod+Return exec xterm
-# bindsym $mod+Return exec xterm zsh-5.2 & sleep .8s && transset-df -a
-bindsym $mod+Return exec gnome-terminal --hide-menubar
+bindsym $mod+Return exec emacsclient -n -e "(me/terminal-emulator-vterms)"
+bindsym $mod+$alt+Return exec emacsclient -n -e "(me/terminal-emulator-eshell)"
+bindsym $mod+Shift+Return exec gnome-terminal --hide-menubar
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -65,11 +68,16 @@ bindsym XF86AudioRaiseVolume exec amixer -D pulse sset Master 5%+
 bindsym XF86AudioMute exec amixer -q set Master toggle
 
 #ADD Audacious
-
-# bindsym XF86AudioPlay exec mpc toggle
-# bindsym XF86AudioStop exec mpc stop
-# bindsym XF86AudioNext exec mpc next
-# bindsym XF86AudioPrev exec mpc prev
+# Laptop Keyboard
+bindsym XF86AudioPlay exec playerctl --player=rhythmbox play-pause
+bindsym XF86AudioStop exec playerctl --player=rhythmbox stop
+bindsym XF86AudioNext exec playerctl --player=rhythmbox next
+bindsym XF86AudioPrev exec playerctl --player=rhythmbox previous
+# Equivalent vanillay quiboard
+bindsym $mod+F10 exec playerctl --player=rhythmbox play-pause
+bindsym $mod+F12 exec playerctl --player=rhythmbox stop
+bindsym $mod+F11 exec playerctl --player=rhythmbox next
+bindsym $mod+F9  exec playerctl --player=rhythmbox previous
 
 
 
@@ -146,17 +154,21 @@ bindsym $mod+space focus mode_toggle
 # focus the parent container
 bindsym $mod+a focus parent
 
+# Change Kyeboard layout
+# bindsym $alt+Shift exec BLOCK_BUTTON=1 /home/vravera/workspace/my-config/config/i3blocks/scripts/layout.sh
+exec --no-startup-id "setxkbmap -layout fr,us -option 'grp:alt_shift_toggle'"
+
 # focus the child container
 #bindsym $mod+d focus child
 
 # switch to workspace
 set $workspace1 "1: "
 set $workspace2 "2: "
-set $workspace3 "3:"
-set $workspace4 "4: "
+set $workspace3 "3: "
+set $workspace4 "4: "
 set $workspace5 "5: "
-set $workspace6 "6:"
-set $workspace7 "7:"
+set $workspace6 "6: "
+set $workspace7 "7: "
 set $workspace8 "8: "
 set $workspace9 "9: "
 set $workspace0 "10: "
@@ -198,9 +210,12 @@ bindsym $mod+Shift+9 move container to workspace $workspace9
 bindsym $mod+Shift+0 move container to workspace $workspace0
 
 # send windows to workspaces
+# assign [class="Emacs"] $workspace2
+assign [class="Microsoft Teams - Preview"] $workspace3
+assign [class="rhythmbox"] $workspace5
+assign [class="keepass2"] $workspace7
+assign [class="KeePass2"] $workspace7
 assign [class="Firefox"] $workspace8
-assign [class="Nautilus"] $workspace4
-assign [class="Emacs"] $workspace2
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -209,9 +224,20 @@ bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
-bindsym $mod+p move workspace to output right
-bindsym $mod+Shift+p move workspace to output right
-# bindsym $mod+Shift+lesser move workspace to output left
+# focus_wrapping yes
+# bindsym $mod+p focus output prev
+bindsym $mod+p move workspace to output next
+bindsym $mod+Shift+p move workspace to output next
+
+# ADD Auto startup work
+exec --no-startup-id i3-msg 'workspace "3: " ; exec teams'
+exec --no-startup-id i3-msg 'workspace "8: " ; exec firefox'
+exec --no-startup-id i3-msg 'workspace "2: " ; exec emacs'
+exec --no-startup-id i3-msg 'workspace "7: " ; exec keepass2 ~/Dropbox/Applications/KeeWeb/Database_vince.kdbx'
+exec --no-startup-id ibus exit
+exec --no-startup-id setxkbmap fr
+
+
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
