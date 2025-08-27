@@ -238,9 +238,14 @@ bindsym $mod+Shift+r restart
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
 # focus_wrapping yes
-# bindsym $mod+p focus output prev
-bindsym $mod+p move workspace to output next
-bindsym $mod+Shift+p move workspace to output next
+bindsym $mod+p move workspace to output right
+bindsym $mod+Shift+p move workspace to output left
+bindsym $mod+dead_circumflex focus output right
+bindsym $mod+Shift+dead_circumflex focus output left
+# bindsym $mod+p focus output left
+# bindsym $mod+Shift+p move workspace to output left
+# bindsym $mod+dead_circumflex focus output right
+# bindsym $mod+Shift+dead_circumflex move workspace to output right
 
 # ADD Auto startup work
 exec --no-startup-id i3-msg 'workspace "3: " ; exec teams'

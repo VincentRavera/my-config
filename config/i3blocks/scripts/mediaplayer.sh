@@ -38,9 +38,28 @@ print_display() {
     echo "$output"
 }
 
-case "$BLOCK_BUTTON" in
-    1) playerctl $PLAYER play-pause ; pad "$(playerctl status)" -30 ;;
-    2) pad "Previous" -30 ; playerctl $PLAYER previous ;;
-    3) pad "Next" -30 ; playerctl $PLAYER next ;;
-    *) print_display ;;
-esac
+simple_display() {
+    artist=$(playerctl $PLAYER metadata artist | iconv -f UTF-8 -t ASCII//TRANSLIT)
+    title=$(playerctl $PLAYER metadata title | iconv -f UTF-8 -t ASCII//TRANSLIT)
+    echo "$artist - $title"
+}
+
+
+if [ "$XDG_SESSION_DESKTOP" = "sway" ] && [ -n "$1" ]
+then
+    BLOCK_BUTTON="$1"
+    case "$BLOCK_BUTTON" in
+        1) playerctl $PLAYER play-pause ; echo "$(playerctl "$PLAYER" status)" -30 ;;
+        2) echo "Previous" -30 ; playerctl $PLAYER previous ;;
+        3) echo "Next" -30 ; playerctl $PLAYER next ;;
+        *) simple_display ;;
+    esac
+else
+
+    case "$BLOCK_BUTTON" in
+        1) playerctl $PLAYER play-pause ; pad "$(playerctl "$PLAYER" status)" -30 ;;
+        2) pad "Previous" -30 ; playerctl $PLAYER previous ;;
+        3) pad "Next" -30 ; playerctl $PLAYER next ;;
+        *) print_display ;;
+    esac
+fi
