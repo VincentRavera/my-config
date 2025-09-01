@@ -1,10 +1,12 @@
+;;; Examples: https://github.com/aadcg/nyxt-config
+(in-package #:nyxt-user)
+
+;;; Tested with Nyxt 3.12.0
 ;;; Navigation is with vim
 (define-configuration (buffer)
     ;; All Buffers should use Default Vim bindings
   ((default-modes
        (pushnew 'nyxt/mode/vi:vi-normal-mode %slot-value%))
-   (default-modes
-       (pushnew 'nyxt/mode/reduce-tracking:reduce-tracking-mode %slot-value%))
 
    ;; Enforce M-x
    (override-map
@@ -39,16 +41,17 @@
                              "space b N" 'new
                              ;; f for favorites / bookmarks and history
                              "space f a" 'bookmark-current-url
-                             "space f l" 'list-bookmarks        ;; Meh, would have prefered a prompt, with fuzzy search on url/tags
+                             "space f l" 'list-bookmarks
                              "space f b" 'list-bookmarks
                              "space f d" 'delete-bookmark
                              "space f f" 'set-url-from-bookmark
-                             "space f F" 'set-url-from-bookmark ;; TODO open in New buffer
+                             "space f F" 'set-url-from-bookmark
                              "space f r" 'history-all-query
                              "space f R" 'history-tree
                              ;; h for help
                              "space h a" 'describe-any
                              "space h C" 'describe-class
+                             "space h c" 'describe-command
                              "space h b b" 'describe-command    ;; != Function
                              "space h b k" 'describe-bindings
                              "space h f" 'describe-function
@@ -78,7 +81,6 @@
 
 ;; Forgotten vi bindings
 (define-configuration expedition-mode
-    "Mode to traverse URLs delimited by a user specified buffer rectangle."
   ((keyscheme-map
     (define-keyscheme-map "expedition-mode" (list :import %slot-value%)
                             nyxt/keyscheme:vi-normal
@@ -86,19 +88,12 @@
                              "J" 'expedition-previous
                              "K" 'expedition-next)))))
 
+;; Remove it from status line
+(define-configuration reduce-tracking-mode
+  ((visible-in-status-p nil)))
+
 ;; MissConfigured binding for document-mode
 (define-configuration document-mode
-    "Mode to interact with structured documents.
-This is typically for HTML pages, but other formats could be supported too.
-It does not assume being online.
-
-Important pieces of functionality are:
-- Page scrolling and zooming.
-- QR code generation.
-- view-source: for URLs.
-- Buffer content summarization.
-- Heading navigation.
-- Frame selection."
   ((keyscheme-map
     (define-keyscheme-map "document-mode" (list :import %slot-value%)
                             nyxt/keyscheme:vi-normal
@@ -110,53 +105,15 @@ Important pieces of functionality are:
                              "C-d" 'scroll-page-down
                              "J" 'expedition-previous
                              "K" 'expedition-next)
-                            doom-normal-key
-                            )))))
-
-(define-configuration base-mode
-  "Note the :import part of the define-keyscheme-map.
-It re-uses the other keymap (in this case, the one that was slot value before
-the configuration) and merely adds/modifies it."
-  ((keyscheme-map
-    (define-keyscheme-map "base-mode" (list :import %slot-value%)
-                            nyxt/keyscheme:default
-                            doom-free-space-key    ;; Free space key for us
-                            nyxt/keyscheme:cua
-                            doom-free-space-key    ;; Free space key for us
-                            nyxt/keyscheme:vi-normal
-                            doom-normal-key))))
+                            doom-normal-key)))))
 
 ;;; Prompt uses Vanilla Emacs bindings as vim does
 (define-configuration (prompt-buffer)
   ((default-modes (pushnew 'nyxt/mode/emacs:emacs-mode %slot-value%))))
 
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Search Engine Prompt
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (defun all-search-queries ()
-;;   "Return the `search-queries's from the `current-buffer'.
-;; If there's no buffer, create a dummy one and get search engines from there."
-;;   (let* ((current-buffer (current-buffer))
-;;          (buffer (or current-buffer
-;;                      (make-instance 'context-buffer))))
-;;     (unwind-protect
-;;          (search-queries buffer)
-;;       (unless current-buffer
-;;         (buffer-delete buffer)))))
-
-
-;; Search Query (not persisetent)
-(define-class user-search-queries (prompter:source)
-  ((prompter:name "Recent queries")
-   ;; (prompter:constructor (all-search-queries))
-   ;; (prompter:filter-preprocessor #'prompter:filter-exact-matches)
-   (prompter:filter-preprocessor nil)
-   )
-  (:documentation "Source listing `all-search-engines' in the current buffer."))
-
 
 (define-command-global doom-query-search-engine (&key (query-in-new-buffer-p t))
   "Search prompted text using the queried search engine.
@@ -166,10 +123,7 @@ QUERY-IN-NEW-BUFFER creates a new buffer with the search results."
                           :sources 'nyxt::search-engine-source))
          (query (prompt1 :prompt "Query"
                         :input selection
-                        ;; :sources 'prompter:raw-source))
                         :sources
-                        ;; (make-instance 'new-url-or-search-source :name "New Query")
-                        ;; (make-instance 'user-search-queries :name "Recent queries")
                         'prompter:raw-source
                         ))
          (target-buffer (if query-in-new-buffer-p
@@ -178,3 +132,26 @@ QUERY-IN-NEW-BUFFER creates a new buffer with the search results."
     (when engine
       (buffer-load (make-instance 'nyxt:new-url-query :query query :engine engine)
                    :buffer target-buffer))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; User Defined DNS Blocking
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Add your Favourite DNS Blocking source
+;; see nyxt:describe-class?class=%1Bnyxt/mode/blocker:blocker-mode
+(defparameter additionals-blocking-url (list
+                                        (make-instance 'nyxt/mode/blocker:hostlist
+                                                       :url (quri:uri "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/pro.txt")
+                                                       :base-path #p"hagezi-pro.txt")))
+
+(define-mode additionals-blocker-mode (nyxt/mode/blocker:blocker-mode)
+  "Blocker mode with custom hosts from *my-blocked-hosts*."
+  ((nyxt/mode/blocker:hostlists additionals-blocking-url)
+   (visible-in-status-p nil)))
+
+
+
+(define-configuration (buffer)
+  ((default-modes
+       (pushnew 'additionals-blocker-mode %slot-value%))
+   (default-modes
+       (pushnew 'nyxt/mode/reduce-tracking:reduce-tracking-mode %slot-value%))))
