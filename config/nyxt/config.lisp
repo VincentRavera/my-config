@@ -152,7 +152,7 @@ QUERY-IN-NEW-BUFFER creates a new buffer with the search results."
     (remove-if
      ;; remove default search engine https://search.atlas.engineer/searxng/search
      ;; (it does not work)
-     (lambda (x) (string= "a" (slot-value x 'shortcut)))
+     (lambda (x) (string= "Atlas SearXNG instance" (slot-value x 'name)))
      %slot-value%))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
