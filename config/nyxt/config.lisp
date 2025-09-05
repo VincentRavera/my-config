@@ -60,16 +60,7 @@
                              "C-u" 'scroll-page-up
                              "C-d" 'scroll-page-down))
 
-;; Forgotten vi bindings
-(define-configuration expedition-mode
-  ((keyscheme-map
-    (define-keyscheme-map "expedition-mode" (list :import %slot-value%)
-                            nyxt/keyscheme:vi-normal
-                            (list
-                             "J" 'expedition-previous
-                             "K" 'expedition-next)))))
-
-;; Remove it from status line
+;; Remove modes from status line
 (define-configuration (reduce-tracking-mode)
   ((visible-in-status-p nil)))
 
@@ -83,9 +74,7 @@
                              "s-space" 'nothing
                              "space" 'nothing
                              "C-u" 'scroll-page-up
-                             "C-d" 'scroll-page-down
-                             "J" 'expedition-previous
-                             "K" 'expedition-next)
+                             "C-d" 'scroll-page-down)
                             doom-normal-key)))))
 
 ;; Visual mode bindings
@@ -95,7 +84,7 @@
                             nyxt/keyscheme:vi-normal
                             (list
                              ;; No implementation of WORD
-                             ;; Added place holder to avoid misstype rage
+                             ;; Added place holder to avoid muscle memory rage
                              "W" 'forward-word
                              "B" 'forward-word
                              "E" 'forward-word
@@ -122,6 +111,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Search Engine Prompt
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Try to replicate SPACE s o from doom
+;; Know that you can also query "ddg your query"
+;; the first args of query is the query engine shortcut
+;; Exec bellow in a repl to get what you have
+;; (mapcar
+;;  (lambda (x) (list
+;;               (slot-value x 'name)
+;;               (slot-value x 'shortcut)))
+;;  (nyxt::all-search-engines))
+;; (remove-if (lambda (x) (= "a" (slot-value x 'shortcut))) (nyxt::all-search-engines))
 (defvar doom-last-search-engine nil
   "Latest Engine used via doom-query-search-engine")
 (define-command-global doom-query-search-engine (&key (query-in-new-buffer-p t))
@@ -147,6 +146,14 @@ QUERY-IN-NEW-BUFFER creates a new buffer with the search results."
       (setq doom-last-search-engine engine)
       (buffer-load (make-instance 'nyxt:new-url-query :query query :engine engine)
                    :buffer target-buffer))))
+
+(define-configuration context-buffer
+  ((search-engines
+    (remove-if
+     ;; remove default search engine https://search.atlas.engineer/searxng/search
+     ;; (it does not work)
+     (lambda (x) (string= "a" (slot-value x 'shortcut)))
+     %slot-value%))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; User Defined DNS Blocking
